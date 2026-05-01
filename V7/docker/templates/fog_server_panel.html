@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fog Server Area Management Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #07090f;
+            --glass-bg: rgba(16, 21, 35, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --primary: #00F0FF;
+            --primary-glow: rgba(0, 240, 255, 0.35);
+            --secondary: #BF00FF;
+            --secondary-glow: rgba(191, 0, 255, 0.35);
+            --success: #00FF9D;
+            --success-glow: rgba(0, 255, 157, 0.35);
+            --danger: #FF0055;
+            --danger-glow: rgba(255, 0, 85, 0.35);
+            --warning: #FFE600;
+            --text-main: #FFFFFF;
+            --text-muted: #8A94A6;
+            --card-radius: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(191, 0, 255, 0.05), transparent 30%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .sys-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            color: var(--success);
+            font-weight: 600;
+            box-shadow: 0 0 15px var(--success-glow);
+        }
+
+        .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulsing 2s infinite; }
+        @keyframes pulsing {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--success-glow); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 157, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+
+        /* Area Tabs */
+        .area-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .area-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .area-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .area-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            margin-bottom: 25px;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 12px;
+        }
+
+        .card-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        .area-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            color: var(--primary);
+            font-size: 1.6rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Vehicle List */
+        .vehicles-section {
+            margin-top: 25px;
+        }
+
+        .vehicles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .vehicle-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .vehicle-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        .vehicle-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .vehicle-id {
+            color: var(--primary);
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+        }
+
+        .vehicle-details {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: flex;
+            gap: 20px;
+        }
+
+        .vehicle-status {
+            padding: 4px 10px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            border-radius: 6px;
+            color: var(--success);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .vehicle-status.threat {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: rgba(255, 0, 85, 0.2);
+            color: var(--danger);
+        }
+
+        /* IDS Specialty Info */
+        .ids-specialty {
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .ids-specialty h3 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ids-specialty p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .ids-specialty.ddos {
+            border-left-color: var(--danger);
+        }
+
+        .ids-specialty.ddos h3 {
+            color: var(--danger);
+        }
+
+        .ids-specialty.gps {
+            border-left-color: var(--warning);
+        }
+
+        .ids-specialty.gps h3 {
+            color: var(--warning);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .area-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary);
+            color: #000;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .area-info { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .area-tabs { flex-direction: column; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>NEXUS FOG SERVER PANEL</h1>
+            </div>
+            <div class="sys-status">
+                <div class="pulse"></div>
+                AREA MONITORING ACTIVE
+            </div>
+        </div>
+
+        <!-- Area Tabs -->
+        <div class="area-tabs">
+            <div class="area-tab active" data-area="1">AREA 1 (DDoS)</div>
+            <div class="area-tab" data-area="2">AREA 2 (GPS)</div>
+            <div class="area-tab" data-area="3">AREA 3</div>
+            <div class="area-tab" data-area="4">AREA 4</div>
+        </div>
+
+        <!-- Area Content -->
+        <div id="areaContent"></div>
+    </div>
+
+    <script>
+        const areas = {
+            1: {
+                name: "Area 1",
+                serverName: "IDS Server A",
+                serverPort: "8001",
+                specialty: "DDoS Detection",
+                specialtyType: "ddos",
+                description: "Specializes in volumetric and application-layer DDoS attack detection. Uses tiered analysis pipeline to identify flood vectors and protocol anomalies.",
+                icon: "⚠️"
+            },
+            2: {
+                name: "Area 2",
+                serverName: "IDS Server B",
+                serverPort: "8002",
+                specialty: "GPS Spoofing Detection",
+                specialtyType: "gps",
+                description: "Specializes in GNSS/GPS spoofing and location anomaly detection. Identifies impossible location jumps and trajectory violations.",
+                icon: "📍"
+            },
+            3: {
+                name: "Area 3",
+                serverName: "Fog Server 3",
+                serverPort: "TBD",
+                specialty: "General Monitoring",
+                specialtyType: "general",
+                description: "Standard fog server for general traffic monitoring and telemetry aggregation. Ready for specialized deployment.",
+                icon: "📡"
+            },
+            4: {
+                name: "Area 4",
+                serverName: "Fog Server 4",
+                serverPort: "TBD",
+                specialty: "General Monitoring",
+                specialtyType: "general",
+                description: "Standard fog server for general traffic monitoring and telemetry aggregation. Ready for specialized deployment.",
+                icon: "📡"
+            }
+        };
+
+        let vehiclesInArea = {
+            1: [],
+            2: [],
+            3: [],
+            4: []
+        };
+
+        let currentArea = 1;
+
+        // Initialize
+        document.querySelectorAll('.area-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchArea(parseInt(tab.dataset.area)));
+        });
+
+        // Simulate vehicle distribution and fetch real data
+        updateVehicles();
+        setInterval(updateVehicles, 3000);
+
+        function switchArea(areaId) {
+            currentArea = areaId;
+            
+            // Update active tab
+            document.querySelectorAll('.area-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-area="${areaId}"]`).classList.add('active');
+            
+            renderAreaContent();
+        }
+
+        async function updateVehicles() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Distribute vehicles to areas based on their location
+                const vehicle = {
+                    id: data.vehicle_id,
+                    speed: data.speed,
+                    location: data.location,
+                    heading: data.heading
+                };
+                
+                // Simple area assignment based on coordinates
+                const lat = data.location[0];
+                const lon = data.location[1];
+                
+                // Area 1: DDoS (25.20-25.21, 55.27-55.28)
+                let assignedArea = 1;
+                if (lat > 25.205 && lat < 25.210) assignedArea = 1;
+                else if (lat > 25.200 && lat < 25.205) assignedArea = 2;
+                else if (lat > 25.210 && lat < 25.215) assignedArea = 3;
+                else assignedArea = 4;
+                
+                // Clear and reassign
+                for (let i = 1; i <= 4; i++) vehiclesInArea[i] = [];
+                vehiclesInArea[assignedArea] = [vehicle];
+                
+                renderAreaContent();
+            } catch (error) {
+                console.error('Vehicle update failed:', error);
+            }
+        }
+
+        function renderAreaContent() {
+            const area = areas[currentArea];
+            const vehicles = vehiclesInArea[currentArea] || [];
+            
+            let html = `
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-icon">${area.icon}</span>
+                        <h2>${area.name} - ${area.serverName}</h2>
+                    </div>
+                    
+                    <span class="area-badge">${area.specialty}</span>
+                    
+                    <div class="area-info">
+                        <div class="info-box">
+                            <div class="info-label">Server Port</div>
+                            <div class="info-value">${area.serverPort}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Vehicles Active</div>
+                            <div class="info-value">${vehicles.length}</div>
+                        </div>
+                    </div>
+            `;
+            
+            if (area.specialtyType !== 'general') {
+                html += `
+                    <div class="ids-specialty ${area.specialtyType}">
+                        <h3>🔍 ${area.specialty}</h3>
+                        <p>${area.description}</p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="vehicles-section">
+                    <div class="card-header" style="margin-top: 25px;">
+                        <span class="card-icon">🚗</span>
+                        <h2>Vehicles in Area</h2>
+                    </div>
+            `;
+            
+            if (vehicles.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div class="icon">🛰️</div>
+                        <p>No vehicles currently in ${area.name}</p>
+                        <p style="font-size: 0.85rem; opacity: 0.7;">Waiting for telemetry data...</p>
+                    </div>
+                `;
+            } else {
+                html += `<div class="vehicles-list">`;
+                vehicles.forEach(vehicle => {
+                    const speed = vehicle.speed.toFixed(1);
+                    const lat = vehicle.location[0].toFixed(5);
+                    const lon = vehicle.location[1].toFixed(5);
+                    
+                    html += `
+                        <div class="vehicle-item">
+                            <div class="vehicle-info">
+                                <div class="vehicle-id">${vehicle.id}</div>
+                                <div class="vehicle-details">
+                                    <span>⚡ ${speed} km/h</span>
+                                    <span>📍 ${lat}, ${lon}</span>
+                                    <span>🧭 ${vehicle.heading.toFixed(1)}°</span>
+                                </div>
+                            </div>
+                            <div class="vehicle-status">Online</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            
+            html += `</div></div>`;
+            document.getElementById('areaContent').innerHTML = html;
+        }
+
+        // Initial render
+        renderAreaContent();
+    </script>
+</body>
+</html>

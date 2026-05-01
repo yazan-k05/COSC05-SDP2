@@ -1,0 +1,4 @@
+id,name,model,status,zone,tools
+32c4acaa,Guardian LLM,Phi-2,online,Global,"patch-planning, telemetry-summarizer"
+b7f1d4c2,Fog Sentinel B,LLM Sentinel,online,Zone B,"spoof-detector, gps-triangulation"
+fc3209f4,Fog Sentinel A,LLM Sentinel,learning,Zone A,"anomaly-detector, traffic-monitor"

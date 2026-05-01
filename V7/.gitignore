@@ -1,0 +1,33 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments and local dependency caches
+venv/
+.venv/
+env/
+.codex_deps/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+
+# Logs and generated caches
+*.log
+.cache/
+**/graphify-out/cache/
+
+# Large downloaded model/checkpoint artifacts
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# Local installers/build outputs
+*.exe
+dist/
+build/

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>IDS Phone Showcase</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0d1117;
+            --panel: #151b23;
+            --line: #303a46;
+            --text: #edf4f8;
+            --muted: #9aa8b6;
+            --cyan: #23c7d9;
+            --red: #e5484d;
+            --green: #37b26c;
+            --blue: #5b8def;
+            --amber: #e0a33a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100dvh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        main {
+            width: min(100%, 560px);
+            min-height: 100dvh;
+            margin: 0 auto;
+            padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+        }
+
+        .stack {
+            display: grid;
+            gap: 14px;
+        }
+
+        section {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--panel);
+            padding: 16px;
+        }
+
+        .kicker {
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .id-readout,
+        .status-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid rgba(35, 199, 217, 0.35);
+            border-radius: 8px;
+            background: rgba(35, 199, 217, 0.08);
+            padding: 12px 14px;
+        }
+
+        .status-line {
+            border-color: rgba(224, 163, 58, 0.35);
+            background: rgba(224, 163, 58, 0.08);
+        }
+
+        .label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .value {
+            color: var(--cyan);
+            font-family: "Courier New", monospace;
+            font-size: 16px;
+            font-weight: 800;
+            text-align: right;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .meta-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0c1319;
+            padding: 12px;
+        }
+
+        .meta-card strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 18px;
+        }
+
+        .meta-card span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .coords {
+            margin-top: 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0c1319;
+            padding: 12px;
+        }
+
+        .coords code {
+            display: block;
+            margin-top: 8px;
+            color: var(--text);
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .attack-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        @media (min-width: 430px) {
+            .attack-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        button {
+            width: 100%;
+            min-height: 82px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            color: #fff;
+            font: inherit;
+            font-weight: 900;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .attack-button {
+            display: grid;
+            gap: 4px;
+        }
+
+        .attack-button span {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .normal { background: linear-gradient(135deg, #208d55, #37b26c); }
+        .ddos { background: linear-gradient(135deg, #c83239, #e5484d); }
+        .gps { background: linear-gradient(135deg, #3169d7, #5b8def); }
+
+        .message {
+            min-height: 52px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0c1319;
+            padding: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.success {
+            border-color: rgba(55, 178, 108, 0.55);
+            color: #b5f0cc;
+        }
+
+        .message.error {
+            border-color: rgba(229, 72, 77, 0.55);
+            color: #ffb6b8;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="stack">
+            <section>
+                <p class="kicker">Assigned Vehicle</p>
+                <div class="id-readout">
+                    <span class="label">Vehicle ID</span>
+                    <span id="vehicleId" class="value">Loading...</span>
+                </div>
+                <div style="height: 10px;"></div>
+                <div class="status-line">
+                    <span class="label">Simulation Status</span>
+                    <span id="simStatus" class="value">Waiting...</span>
+                </div>
+            </section>
+
+            <section>
+                <p class="kicker">Live Vehicle State</p>
+                <div class="meta-grid">
+                    <div class="meta-card">
+                        <span>Current Area</span>
+                        <strong id="vehicleArea">-</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Vehicle Status</span>
+                        <strong id="vehicleStatus">-</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Speed</span>
+                        <strong id="vehicleSpeed">-</strong>
+                    </div>
+                    <div class="meta-card">
+                        <span>Heading</span>
+                        <strong id="vehicleHeading">-</strong>
+                    </div>
+                </div>
+                <div class="coords">
+                    <span class="label">Simulation Theater Coordinates</span>
+                    <code id="vehicleCoords">Waiting for simulator...</code>
+                </div>
+            </section>
+
+            <section>
+                <p class="kicker">Send One Packet</p>
+                <div class="attack-grid">
+                    <button id="normalButton" class="attack-button normal" type="button">
+                        <strong>Normal Transmission</strong>
+                        <span>Send one real BSM packet for this assigned vehicle.</span>
+                    </button>
+                    <button id="ddosButton" class="attack-button ddos" type="button">
+                        <strong>DDoS Attack</strong>
+                        <span>Send one synthetic DDoS packet through the IDS pipeline.</span>
+                    </button>
+                    <button id="gpsButton" class="attack-button gps" type="button">
+                        <strong>GPS Spoof</strong>
+                        <span>Send one spoofed-location packet for this assigned vehicle.</span>
+                    </button>
+                </div>
+            </section>
+
+            <section>
+                <p class="kicker">Confirmation</p>
+                <div id="messageBox" class="message">Waiting for your first packet send.</div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const vehicleIdEl = document.getElementById("vehicleId");
+        const simStatusEl = document.getElementById("simStatus");
+        const vehicleAreaEl = document.getElementById("vehicleArea");
+        const vehicleStatusEl = document.getElementById("vehicleStatus");
+        const vehicleSpeedEl = document.getElementById("vehicleSpeed");
+        const vehicleHeadingEl = document.getElementById("vehicleHeading");
+        const vehicleCoordsEl = document.getElementById("vehicleCoords");
+        const messageBox = document.getElementById("messageBox");
+        const buttons = {
+            normal: document.getElementById("normalButton"),
+            ddos: document.getElementById("ddosButton"),
+            gps: document.getElementById("gpsButton"),
+        };
+
+        let currentVehicleId = "";
+
+        function setMessage(text, tone = "") {
+            messageBox.textContent = text;
+            messageBox.className = tone ? `message ${tone}` : "message";
+        }
+
+        function setButtonsDisabled(disabled) {
+            Object.values(buttons).forEach((button) => {
+                button.disabled = disabled;
+            });
+        }
+
+        function renderVehicleState(payload) {
+            const vehicle = payload.vehicle || {};
+            currentVehicleId = payload.vehicle_id || "";
+            vehicleIdEl.textContent = currentVehicleId || "Unavailable";
+            simStatusEl.textContent = vehicle.simulation_status || "unknown";
+
+            if (!vehicle.available) {
+                vehicleAreaEl.textContent = "-";
+                vehicleStatusEl.textContent = vehicle.error || "Unavailable";
+                vehicleSpeedEl.textContent = "-";
+                vehicleHeadingEl.textContent = "-";
+                vehicleCoordsEl.textContent = "Vehicle is not currently available in Simulation Theater.";
+                return;
+            }
+
+            vehicleAreaEl.textContent = `Area ${vehicle.area}`;
+            vehicleStatusEl.textContent = vehicle.status || "UNKNOWN";
+            vehicleSpeedEl.textContent = `${Number(vehicle.speed || 0).toFixed(2)} km/h`;
+            vehicleHeadingEl.textContent = `${Number(vehicle.heading || 0).toFixed(2)}°`;
+            vehicleCoordsEl.textContent = `x=${Number(vehicle.x || 0).toFixed(3)}, y=${Number(vehicle.y || 0).toFixed(3)}`;
+        }
+
+        async function refreshPhoneState() {
+            try {
+                const response = await fetch("/api/phone/state", { cache: "no-store" });
+                const payload = await response.json();
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.message || payload.error || "state_unavailable");
+                }
+                renderVehicleState(payload);
+            } catch (error) {
+                vehicleIdEl.textContent = "Unavailable";
+                simStatusEl.textContent = "offline";
+                vehicleAreaEl.textContent = "-";
+                vehicleStatusEl.textContent = "state fetch failed";
+                vehicleSpeedEl.textContent = "-";
+                vehicleHeadingEl.textContent = "-";
+                vehicleCoordsEl.textContent = String(error.message || error);
+            }
+        }
+
+        async function sendSignal(signalName, buttonLabel) {
+            setButtonsDisabled(true);
+            setMessage(`Sending ${buttonLabel} packet for ${currentVehicleId || "assigned vehicle"}...`);
+            try {
+                const response = await fetch(`/api/phone/send/${signalName}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({}),
+                });
+                const payload = await response.json();
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.message || payload.error || "send_failed");
+                }
+                renderVehicleState({
+                    vehicle_id: payload.vehicle_id,
+                    vehicle: payload.vehicle || {},
+                });
+                setMessage(`${payload.message} Vehicle ${payload.vehicle_id} packet sent successfully.`, "success");
+            } catch (error) {
+                setMessage(`Packet send failed: ${error.message || error}`, "error");
+            } finally {
+                setButtonsDisabled(false);
+                await refreshPhoneState();
+            }
+        }
+
+        buttons.normal.addEventListener("click", () => sendSignal("normal", "normal"));
+        buttons.ddos.addEventListener("click", () => sendSignal("ddos", "DDoS"));
+        buttons.gps.addEventListener("click", () => sendSignal("gps-spoof", "GPS spoof"));
+
+        refreshPhoneState();
+        setInterval(refreshPhoneState, 3000);
+    </script>
+</body>
+</html>

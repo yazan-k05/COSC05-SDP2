@@ -1,0 +1,1987 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <!-- Google Fonts for sleek typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #07090f;
+      --glass-bg: rgba(16, 21, 35, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --primary: #00F0FF;
+      --primary-glow: rgba(0, 240, 255, 0.35);
+      --secondary: #BF00FF;
+      --success: #00FF9D;
+      --success-glow: rgba(0, 255, 157, 0.3);
+      --danger: #FF0055;
+      --danger-glow: rgba(255, 0, 85, 0.3);
+      --warning: #FFE600;
+      --text-main: #FFFFFF;
+      --text-muted: #8A94A6;
+      --card-radius: 12px;
+      --ws-row-odd: rgba(255, 255, 255, 0.02);
+      --ws-row-even: rgba(255, 255, 255, 0.0);
+      --ws-row-hover: rgba(0, 240, 255, 0.1);
+      --ws-suspicious: rgba(255, 0, 85, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      background-image:
+          radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.04), transparent 30%),
+          radial-gradient(circle at 90% 80%, rgba(191, 0, 255, 0.04), transparent 30%),
+          linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: clamp(12px, 2vw, 20px) clamp(12px, 2.6vw, 30px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--card-radius);
+      padding: 20px 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+    .topbar-left .muted { font-size: 1rem; color: var(--text-muted); }
+
+    /* Area Tabs */
+    .area-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .area-tab {
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .area-tab:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .area-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .topbar-right { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px;
+      margin-left: auto;
+    }
+    .topbar-right .links { 
+      display: flex; 
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .topbar-right .links a {
+      color: var(--primary); 
+      text-decoration: none; 
+      font-size: 0.9rem; 
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .topbar-right .links a:hover { 
+      color: #fff; 
+      text-shadow: 0 0 10px var(--primary-glow); 
+    }
+    .status-badge {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      justify-content: flex-end;
+      font-family: 'Space Grotesk', sans-serif; 
+      font-size: 0.85rem; 
+      font-weight: 700; 
+      text-transform: uppercase;
+    }
+    .status-dot { 
+      width: 10px; 
+      height: 10px; 
+      border-radius: 50%; 
+    }
+
+    .status-ok { color: var(--success); }
+    .status-ok .status-dot { background: var(--success); box-shadow: 0 0 10px var(--success-glow); animation: pulsing 2s infinite; }
+    .status-warn { color: var(--warning); }
+    .status-warn .status-dot { background: var(--warning); }
+    .status-err { color: var(--danger); }
+    .status-err .status-dot { background: var(--danger); box-shadow: 0 0 10px var(--danger-glow); }
+
+    @keyframes pulsing {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--success-glow); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 157, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+      flex-grow: 1;
+      min-height: 0;
+    }
+
+    .left-col { display: flex; flex-direction: column; gap: 20px; min-height: 0; overflow: visible; }
+    .right-col { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
+
+    /* Cards */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--card-radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .card-header {
+      font-family: 'Space Grotesk', sans-serif; 
+      font-size: 1.1rem; 
+      color: #fff; 
+      font-weight: 700;
+      border-bottom: 1px solid var(--glass-border); 
+      padding-bottom: 12px; 
+      margin-bottom: 15px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+    }
+
+    /* Key/Value tables */
+    .kv-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .kv-table td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .kv-table td:first-child { color: var(--text-muted); font-weight: 500; }
+    .kv-table td:last-child { color: var(--text-main); text-align: right; font-weight: 600; font-family: 'Space Grotesk', sans-serif; }
+    .kv-table tr:last-child td { border-bottom: none; }
+    .policy-scroll {
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .policy-scroll::-webkit-scrollbar { width: 6px; }
+    .policy-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
+    .policy-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    .policy-table td:first-child {
+      width: 42%;
+      font-size: 0.82rem;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .policy-table td:last-child {
+      width: 58%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+    .policy-table .policy-actions-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .prompt-master-card {
+      gap: 10px;
+    }
+    .prompt-master-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .prompt-master-title {
+      color: var(--secondary);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .prompt-master-status {
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(149, 164, 197, 0.08);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .prompt-master-status.ok {
+      color: var(--success);
+      border-color: rgba(0,255,157,0.45);
+      background: rgba(0,255,157,0.1);
+    }
+    .prompt-master-status.warn {
+      color: var(--warning);
+      border-color: rgba(255,230,0,0.45);
+      background: rgba(255,230,0,0.1);
+    }
+    .prompt-master-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .pm-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pm-field label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pm-select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(11,18,32,0.85);
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .pm-btn {
+      width: 100%;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid rgba(149,164,197,0.45);
+      background: rgba(149,164,197,0.1);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .pm-btn:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+    .prompt-master-output {
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(11,18,32,0.85);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #d6e0f8;
+      max-height: 140px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .prompt-master-reason {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+    .prompt-master-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .prompt-master-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+    }
+    .prompt-master-option {
+      border: 1px solid var(--glass-border);
+      border-radius: 9px;
+      background: rgba(11,18,32,0.88);
+      color: #d7e0f6;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: 0.2s;
+    }
+    .prompt-master-option:hover {
+      border-color: var(--primary);
+    }
+    .prompt-master-option .option-title {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .prompt-master-option .option-desc {
+      font-size: 0.69rem;
+      color: var(--text-muted);
+      line-height: 1.25;
+    }
+    .coord-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .coord-feed::-webkit-scrollbar { width: 6px; }
+    .coord-feed::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
+    .coord-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    .coord-item {
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      background: rgba(11,18,32,0.88);
+      padding: 8px 10px;
+    }
+    .coord-item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .coord-item-msg {
+      font-size: 0.80rem;
+      line-height: 1.35;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+    .coord-ok { border-color: rgba(0,255,157,0.25); }
+    .coord-warn { border-color: rgba(255,230,0,0.25); }
+    .coord-err { border-color: rgba(255,0,85,0.3); }
+
+    .cloud-master-textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .cloud-master-textarea:focus {
+      outline: none;
+      border-color: rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.12);
+    }
+    .cloud-master-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .pm-btn.auto-detect-on {
+      border-color: rgba(255, 190, 0, 0.5) !important;
+      background: rgba(255, 190, 0, 0.12) !important;
+      color: var(--warning) !important;
+    }
+    .master-ai-reply {
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      padding: 12px;
+      background: rgba(7, 11, 32, 0.75);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    /* WireShark Sniffer */
+    .wireshark-container {
+      flex-grow: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      min-height: 0;
+      max-height: 480px;
+    }
+    
+    .ws-toolbar {
+      background: #111827;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ws-btn {
+      background: rgba(255,255,255,0.05); 
+      border: 1px solid var(--glass-border); 
+      color: #fff;
+      padding: 4px 10px; 
+      border-radius: 4px; 
+      font-size: 0.8rem; 
+      cursor: pointer; 
+      transition: 0.2s;
+    }
+    .ws-btn:hover { 
+      background: rgba(0, 240, 255, 0.2); 
+      border-color: var(--primary); 
+    }
+    .ws-title { 
+      margin-left: auto; 
+      color: var(--primary); 
+      font-weight: 700; 
+      letter-spacing: 1px; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+    .rec-icon { 
+      width: 8px; 
+      height: 8px; 
+      background: var(--danger); 
+      border-radius: 50%; 
+      box-shadow: 0 0 8px var(--danger); 
+      animation: blink 1s infinite; 
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .ws-header {
+      display: grid;
+      grid-template-columns: 56px 108px 148px 128px 76px 72px 1fr;
+      padding: 8px 16px;
+      background: #1f2937;
+      border-bottom: 1px solid #374151;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+    }
+    
+    .ws-body {
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-body::-webkit-scrollbar { width: 10px; }
+    .ws-body::-webkit-scrollbar-track { background: #0f172a; }
+    .ws-body::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; border: 2px solid #0f172a; }
+    .ws-body::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    .ws-row {
+      display: grid;
+      grid-template-columns: 56px 108px 148px 128px 76px 72px 1fr;
+      padding: 4px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      cursor: pointer;
+    }
+    .ws-row:nth-child(even) { background: var(--ws-row-even); }
+    .ws-row:nth-child(odd) { background: var(--ws-row-odd); }
+    .ws-row:hover { background: var(--ws-row-hover); }
+    
+    .ws-row.suspicious { background: var(--ws-suspicious); border-bottom-color: rgba(255,0,85,0.2); }
+    .ws-row.suspicious:hover { background: rgba(255, 0, 85, 0.25); }
+    
+    .ws-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+    .c-time { color: var(--text-muted); }
+    .c-src { color: #a78bfa; font-weight: 500; }
+    .c-proto { color: #60a5fa; }
+    .c-info { color: #d1d5db; }
+    .c-threat { color: var(--danger); font-weight: 700; }
+    .c-trust { font-family: 'JetBrains Mono', monospace; font-size: 0.77rem; font-weight: 700; }
+
+    /* ── Fuzzy selected vehicle highlight ─────────────────────────────── */
+    .fuzzy-selected-row td { background: rgba(191,0,255,0.07) !important; }
+
+    /* ── Fuzzy Inference Detail Panel ─────────────────────────────────── */
+    .fuzzy-detail-panel {
+      margin-top: 14px;
+      padding: 14px 0 4px;
+      border-top: 1px solid rgba(191,0,255,0.2);
+    }
+    .fuzzy-detail-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.70rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .fuzzy-inputs-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .fuzzy-inp-group { display: flex; flex-direction: column; gap: 4px; }
+    .fuzzy-inp-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fuzzy-inp-bar-row { display: flex; align-items: center; gap: 5px; }
+    .fuzzy-inp-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .fuzzy-inp-fill { height: 100%; border-radius: 3px; transition: width 0.45s ease; }
+    .fuzzy-inp-val { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--text-muted); min-width: 30px; text-align: right; }
+
+    .fuzzy-rules-grid { display: flex; flex-direction: column; gap: 5px; }
+    .fuzzy-rule-row {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 100px 32px;
+      align-items: center;
+      gap: 8px;
+    }
+    .fuzzy-rule-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.66rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fuzzy-rule-track {
+      height: 5px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .fuzzy-rule-fill { height: 100%; border-radius: 3px; transition: width 0.45s ease; }
+    .fuzzy-rule-val { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-align: right; }
+
+    /* ── Fuzzy Trust Engine ────────────────────────────────────────────── */
+    .fuzzy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .fuzzy-section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .trust-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .trust-table th {
+      padding: 5px 6px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.70rem;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid var(--glass-border);
+      text-align: left;
+    }
+    .trust-table td { padding: 5px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+    .trust-table tr:last-child td { border-bottom: none; }
+
+    .trust-bar-wrap {
+      width: 80px;
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      display: inline-block;
+    }
+    .trust-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease, background 0.5s ease;
+    }
+    .trust-label-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.70rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .tl-ht  { background: rgba(0,255,157,0.15);  color: #00FF9D; border: 1px solid rgba(0,255,157,0.3); }
+    .tl-t   { background: rgba(0,240,255,0.12);  color: #00F0FF; border: 1px solid rgba(0,240,255,0.3); }
+    .tl-u   { background: rgba(255,230,0,0.12);  color: #FFE600; border: 1px solid rgba(255,230,0,0.3); }
+    .tl-lo  { background: rgba(255,100,0,0.15);  color: #FF9500; border: 1px solid rgba(255,100,0,0.3); }
+    .tl-unt { background: rgba(255,0,85,0.15);   color: #FF0055; border: 1px solid rgba(255,0,85,0.3);  }
+
+    .node-trust-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .node-trust-row:last-child { border-bottom: none; }
+    .node-trust-name {
+      min-width: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.80rem;
+      color: #a78bfa;
+      font-weight: 500;
+    }
+    .node-trust-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-left: auto;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .exposure-bar-wrap {
+      width: 60px;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .exposure-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #FF9500, #FF0055);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .fuzzy-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--glass-border);
+    }
+    .fuzzy-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.70rem; color: var(--text-muted); }
+    .fuzzy-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    @media (max-width: 1180px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .left-col, .right-col { overflow: visible; }
+      .fuzzy-grid { grid-template-columns: 1fr; }
+      .prompt-master-grid { grid-template-columns: 1fr; }
+      .prompt-master-actions { grid-template-columns: 1fr; }
+      .cloud-master-actions { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .topbar-right { width: 100%; margin-left: 0; }
+      .topbar-right .links { justify-content: flex-start; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>{{ title }}</h1>
+      <div class="muted">{{ subtitle }}</div>
+      <div class="area-tabs" id="areaTabs">
+        <div class="area-tab active" data-area="1" onclick="switchArea(1)">Area 1</div>
+        <div class="area-tab" data-area="2" onclick="switchArea(2)">Area 2</div>
+        <div class="area-tab" data-area="3" onclick="switchArea(3)">Area 3</div>
+        <div class="area-tab" data-area="4" onclick="switchArea(4)">Area 4</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-badge status-warn" id="socketStatus">
+        <div class="status-dot"></div> WS: CONNECTING
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Updated: <span id="lastUpdate" style="color:#fff;">-</span></div>
+      <div class="links">
+        <button id="btnSim" onclick="toggleSim()" class="ws-btn" style="background: rgba(0,255,157,0.1); color: var(--success); border-color: var(--success); font-weight: 700;">START SIM</button>
+        <button id="btnNodeA" onclick="toggleSpecialistNode('A')" class="ws-btn" style="font-weight: 700;">NODE A: ON</button>
+        <button id="btnNodeB" onclick="toggleSpecialistNode('B')" class="ws-btn" style="font-weight: 700;">NODE B: ON</button>
+        <button id="btnReset" onclick="resetSystem()" class="ws-btn" style="background: rgba(255,0,0,0.1); color: var(--danger); border-color: var(--danger); font-weight: 700;">RESET</button>
+        <a id="fedLabLink" target="_blank" rel="noopener noreferrer">⮞ Federated Lab</a>
+        <a id="attackPanelLink" target="_blank" rel="noopener noreferrer">⮞ Attack Panel</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    
+    <!-- Left Column: Stats & Policy -->
+    <div class="left-col">
+      <div class="glass-card">
+        <div class="card-header"><span>AREA METRICS</span></div>
+        <table class="kv-table" id="statsBody">
+          <tr><td>Awaiting uplink...</td><td></td></tr>
+        </table>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><span style="color:var(--primary)">MASTER AI RESPONSE</span></div>
+        <div id="masterAiReply" class="master-ai-reply">Waiting for master AI response...</div>
+      </div>
+
+      <div class="glass-card prompt-master-card">
+        <div class="prompt-master-head">
+          <span class="prompt-master-title">Prompt Master</span>
+          <span id="promptMasterStatus" class="prompt-master-status">Ready</span>
+        </div>
+        <div class="prompt-master-grid">
+          <div class="pm-field">
+            <label for="promptFocus">Recommendation Focus</label>
+            <select id="promptFocus" class="pm-select">
+              <option value="auto">Auto (live threat)</option>
+              <option value="ddos">DDoS</option>
+              <option value="gps_spoof">GPS Spoofing</option>
+            </select>
+          </div>
+          <div class="pm-field">
+            <label for="promptMasterGenerate">Generate Recommendation</label>
+            <button id="promptMasterGenerate" class="pm-btn" onclick="generatePromptMasterRecommendation()">Generate Prompt</button>
+          </div>
+        </div>
+        <div class="pm-field">
+          <label for="promptMasterRecommendation">Recommended Prompt</label>
+          <div id="promptMasterRecommendation" class="prompt-master-output">Press "Generate Prompt" to create an operator-ready query from live context.</div>
+        </div>
+        <div id="promptMasterReason" class="prompt-master-reason">
+          Prompt Master optimizes your question for faster, more actionable AI responses.
+        </div>
+        <div class="prompt-master-actions">
+          <button class="pm-btn" onclick="applyPromptMasterRecommendation()">Use Recommended Prompt</button>
+          <button class="pm-btn" onclick="runRecommendedPrompt()">Use + Query Master AI</button>
+        </div>
+        <div id="promptMasterOptions" class="prompt-master-options"></div>
+        <div id="promptMasterReply" class="prompt-master-output">Short reply from “Use + Query Master AI” appears here. For the full formatted briefing, use Cloud Master below.</div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><span style="color:var(--secondary)">ASK CLOUD MASTER</span></div>
+        <div class="pm-field">
+          <label for="masterQuestion">Operator question</label>
+          <textarea id="masterQuestion" class="cloud-master-textarea" placeholder="Ask for current network risk and actions...">What is happening now and what should I do next?</textarea>
+        </div>
+        <div class="cloud-master-actions">
+          <button type="button" class="pm-btn" onclick="askMasterAi(false)">Query Master AI</button>
+          <button type="button" class="pm-btn" id="autoAiToggle" onclick="toggleAutoAi()">Auto-Detect: OFF</button>
+        </div>
+        <div class="prompt-master-reason" style="margin-top:8px;">Auto-Detect refreshes Prompt Master and queries Master AI every 15s when an active attack is present. Ctrl+Enter runs a query.</div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Wireshark View + Fuzzy Trust + Server Communications -->
+    <div class="right-col">
+      <div class="glass-card" style="padding: 15px; border-color: rgba(0, 240, 255, 0.2); box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.05);">
+
+        <div class="wireshark-container">
+          <div class="ws-toolbar">
+            <button class="ws-btn" onclick="clearAreaPackets()">Clear Capture</button>
+            <button class="ws-btn" onclick="autoScroll = !autoScroll; this.style.borderColor = autoScroll ? 'var(--primary)' : 'var(--glass-border)';">Auto-Scroll</button>
+            <div class="ws-title">
+              <div class="rec-icon"></div> LIVE PACKETS (AREA <span id="areaNumber">1</span>)
+            </div>
+          </div>
+
+          <div class="ws-header">
+            <div>NO.</div>
+            <div>TIME</div>
+            <div>SOURCE</div>
+            <div>PROTOCOL/TYPE</div>
+            <div>THREAT</div>
+            <div>TRUST</div>
+            <div>INFO / EVENT ID</div>
+          </div>
+
+          <div class="ws-body" id="wsBody">
+            <!-- Packets will appear here -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Fuzzy Trust Engine ── -->
+      <div class="glass-card" style="border-color: rgba(191,0,255,0.25); box-shadow: inset 0 0 24px rgba(191,0,255,0.06);">
+        <div class="card-header">
+          <span style="background: linear-gradient(135deg,#BF00FF,#00F0FF); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800;">
+            ⬡ FUZZY TRUST ENGINE
+          </span>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500; font-family:'JetBrains Mono',monospace;">Mamdani · WA-defuzz · EMA-smooth</span>
+        </div>
+
+        <div class="fuzzy-grid">
+
+          <!-- Left: Vehicle trust table -->
+          <div>
+            <div class="fuzzy-section-title">Vehicle Reliability</div>
+            <table class="trust-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Trust</th>
+                  <th>Score</th>
+                  <th>Anom.</th>
+                  <th>Susp.</th>
+                </tr>
+              </thead>
+              <tbody id="fuzzyVehicleBody">
+                <tr><td colspan="5" style="color:var(--text-muted);font-size:0.8rem;padding:10px 6px;">Awaiting packets…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Federated policy summary -->
+          <div>
+            <div class="fuzzy-section-title">Federated Policy</div>
+            <table class="kv-table policy-table" id="fuzzyPolicyBody">
+              <tr><td>Awaiting policy sync...</td><td></td></tr>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- ── Fuzzy Inference Detail — its own box under the live capture ── -->
+        <div class="fuzzy-detail-panel" id="fuzzyDetailPanel">
+          <div style="color:var(--text-muted);font-size:0.75rem;padding:6px 0;display:flex;align-items:center;gap:8px;">
+            <span style="opacity:0.35;font-size:1rem;">⬡</span>
+            Click a vehicle row above to inspect its live fuzzy inference inputs &amp; active rules
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Server Communications - Full Width Below Fuzzy Trust -->
+      <div class="glass-card">
+        <div class="card-header"><span style="color:var(--warning)">SERVER COMMUNICATIONS</span></div>
+        <div id="coordFeed" class="coord-feed">
+          <div style="color:var(--text-muted);font-size:0.82rem;">Awaiting orchestration events...</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div> <!-- End Grid -->
+
+  <script>
+    const PANEL_PROTOCOL = window.location.protocol;
+    const PANEL_HOST = window.location.hostname;
+    // FEDLAB, attack panel, and simulator are always on the same host as the panel
+    const FEDLAB_URL = `${PANEL_PROTOCOL}//${PANEL_HOST}:8300/dashboard`;
+    const ATTACK_PANEL_URL = `${PANEL_PROTOCOL}//${PANEL_HOST}:7700`;
+    const PANEL_API_URL = window.location.origin;
+
+    // Browsers talk to panel-app only.  Panel-app then proxies to the cloud
+    // services over WireGuard, so other laptops do not need VPN routes.
+    let ORCH_URL = PANEL_API_URL;
+    let GLOBAL_URL = PANEL_API_URL;
+    let SIMULATOR_URL = `${PANEL_PROTOCOL}//${PANEL_HOST}:9000`;
+
+    async function loadPanelConfig() {
+      try {
+        const res = await fetch(`${PANEL_API_URL}/api/config`);
+        if (res.ok) {
+          const cfg = await res.json();
+          if (cfg.simulator_url) SIMULATOR_URL = cfg.simulator_url;
+        }
+      } catch (_) {}
+    }
+
+    const areaConfig = {
+      1: { name: "Area 1", serverName: "Geographic Capture", port: "8100", specialty: "Network-wide detection; specialist fanout happens after capture", icon: "📡" },
+      2: { name: "Area 2", serverName: "Geographic Capture", port: "8100", specialty: "Network-wide detection; specialist fanout happens after capture", icon: "📡" },
+      3: { name: "Area 3", serverName: "Geographic Capture", port: "8100", specialty: "Network-wide detection; specialist fanout happens after capture", icon: "📡" },
+      4: { name: "Area 4", serverName: "Geographic Capture", port: "8100", specialty: "Network-wide detection; specialist fanout happens after capture", icon: "📡" }
+    };
+
+    let currentArea = 1;
+
+    document.getElementById("fedLabLink").href = FEDLAB_URL;
+    document.getElementById("attackPanelLink").href = ATTACK_PANEL_URL;
+
+    let socketRef = null;
+    let reconnectTimer = null;
+    let autoScroll = true;
+    let simStarted = false;
+    let promptMasterState = {
+      recommended_prompt: "",
+      options: [],
+      attack_type: "",
+      attack_label: "No Active Attack",
+      mode: "auto",
+    };
+    let lastPromptMasterAttackType = "";
+
+    const ATTACK_LABELS = {
+      ddos: "DDoS",
+      gps_spoof: "GPS Spoofing",
+      prompt_injection: "Prompt Injection",
+      indirect_prompt_injection: "Indirect Prompt Injection",
+      v2x_exploitation: "V2X Exploitation",
+      data_poisoning: "Data Poisoning",
+    };
+
+    let autoAiInterval = null;
+
+    // Fuzzy trust state — updated from every WS message
+    let vehicleTrustMap = {};   // entity_id → full vehicle trust object
+    let selectedVehicleId = null;
+    let fogServerTrustData = []; // fog-server's own node list (polled separately)
+
+    // INDEPENDENT VIEW PER AREA (all receive same orchestrator data)
+    const areaData = {
+      1: { packets: [], packetCount: 0, seenEvents: new Set(), stats: {}, policy: {}, lastUpdate: null },
+      2: { packets: [], packetCount: 0, seenEvents: new Set(), stats: {}, policy: {}, lastUpdate: null },
+      3: { packets: [], packetCount: 0, seenEvents: new Set(), stats: {}, policy: {}, lastUpdate: null },
+      4: { packets: [], packetCount: 0, seenEvents: new Set(), stats: {}, policy: {}, lastUpdate: null }
+    };
+
+    function switchArea(areaId) {
+      currentArea = areaId;
+      document.querySelectorAll('.area-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`[data-area="${areaId}"]`).classList.add('active');
+      document.getElementById('areaNumber').textContent = areaId;
+      
+      const area = areaConfig[areaId];
+      
+      // Update header info
+      const statsBody = document.getElementById('statsBody');
+      statsBody.innerHTML = `
+        <tr style="background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid rgba(0, 240, 255, 0.2);">
+          <td style="color: var(--primary); font-weight: 700;">📍 ${area.name}</td>
+          <td style="color: var(--primary); font-weight: 700;">${area.serverName}</td>
+        </tr>
+        <tr style="background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid rgba(0, 240, 255, 0.2);">
+          <td style="color: var(--text-muted); font-size: 0.8rem;">Specialty</td>
+          <td style="color: var(--primary); font-weight: 600; font-size: 0.9rem;">🔍 ${area.specialty}</td>
+        </tr>
+        <tr style="background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid rgba(0, 240, 255, 0.2);">
+          <td style="color: var(--text-muted); font-size: 0.8rem;">Port</td>
+          <td style="color: var(--text-main); font-weight: 600;">${area.port}</td>
+        </tr>
+        <tr style="height: 8px;"><td colspan="2"></td></tr>
+      `;
+      
+      // Render area-specific data
+      renderAreaStats();
+      renderAreaPolicy();
+      renderAreaPackets();
+    }
+
+    function renderAreaStats() {
+      const data = areaData[currentArea].stats;
+      const cfg = data.federated_learning && data.federated_learning.config || {};
+      const modelState = data.federated_learning && data.federated_learning.model_state || {};
+      const areaPackets = areaData[currentArea].packets || [];
+      const suspiciousCount = areaPackets.filter(p => p.rowClass.includes("suspicious")).length;
+
+      const rows = [
+        ["Area Packets Captured", `<span style="color:var(--primary);font-weight:700;">${areaPackets.length}</span>`],
+        ["Suspicious in Area", suspiciousCount > 0 ? `<span style="color:var(--danger);font-weight:700;">${suspiciousCount}</span>` : `<span style="color:var(--success)">0</span>`],
+        ["Learning State", cfg.enabled ? `<span style="color:var(--success)">ENABLED</span>` : `<span style="color:var(--text-muted)">DISABLED</span>`],
+        ["DDoS Filter", data.detection_branches && data.detection_branches.ddos_enabled !== false ? "ACTIVE" : "BYPASSED"],
+        ["GPS Filter", data.detection_branches && data.detection_branches.gps_enabled !== false ? "ACTIVE" : "BYPASSED"]
+      ];
+
+      const statsBody = document.getElementById("statsBody");
+      const headerRows = statsBody.innerHTML.split('<tr style="height: 8px;">')[0];
+      statsBody.innerHTML = headerRows + '<tr style="height: 8px;"><td colspan="2"></td></tr>' + rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+    }
+
+    function renderAreaPolicy() {
+      const policy = areaData[currentArea].policy;
+      const weights = policy.weights || {};
+      const actions = Array.isArray(policy.recommended_actions) && policy.recommended_actions.length
+        ? policy.recommended_actions.join("; ")
+        : "-";
+      const ddosWeight = weights.ddos;
+      const gpsSpoofWeight = weights.gps_spoof ?? weights["gps-spoof"] ?? weights.gps_spoofing;
+      const formatWeight = (value) => typeof value === "number" ? value.toFixed(3) : "-";
+      const formatStrategy = (value) => {
+        if (!value || value === "-") return "-";
+        return String(value).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      };
+      const coreRows = [
+        ["Round ID", String(policy.round_id ?? "-")],
+        ["Coord Strategy", formatStrategy(policy.strategy ?? "-")],
+        ["DDOS Weight", formatWeight(ddosWeight)],
+        ["GPS-SPOOF Weight", formatWeight(gpsSpoofWeight)],
+        ["Actions", `<span class="policy-actions-value">${actions}</span>`]
+      ];
+
+      const policyBody = document.getElementById("policyBody");
+      if (policyBody) {
+        policyBody.innerHTML = coreRows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      }
+
+      const fuzzyPolicyRows = [
+        ["Round ID", String(policy.round_id ?? "-")],
+        ["Coord Strategy", formatStrategy(policy.strategy ?? "-")],
+        ["DDOS Weight", formatWeight(ddosWeight)],
+        ["GPS-SPOOF Weight", formatWeight(gpsSpoofWeight)],
+        ["Actions", `<span class="policy-actions-value">${actions}</span>`]
+      ];
+      const fuzzyPolicyBody = document.getElementById("fuzzyPolicyBody");
+      if (fuzzyPolicyBody) {
+        fuzzyPolicyBody.innerHTML = fuzzyPolicyRows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      }
+    }
+
+    function normalizeAttackType(value) {
+      return String(value || "").trim().toLowerCase().replace(/-/g, "_");
+    }
+
+    function setPromptMasterStatus(text, tone = "") {
+      const el = document.getElementById("promptMasterStatus");
+      if (!el) return;
+      el.textContent = text;
+      el.classList.remove("ok", "warn");
+      if (tone === "ok") el.classList.add("ok");
+      if (tone === "warn") el.classList.add("warn");
+    }
+
+    function renderPromptMasterOptions(options = []) {
+      const container = document.getElementById("promptMasterOptions");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!Array.isArray(options) || options.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "prompt-master-reason";
+        empty.textContent = "No alternate prompt options available.";
+        container.appendChild(empty);
+        return;
+      }
+
+      options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "prompt-master-option";
+        btn.addEventListener("click", () => applyPromptMasterOption(index));
+
+        const title = document.createElement("span");
+        title.className = "option-title";
+        title.textContent = String(option.title || `Option ${index + 1}`);
+
+        const desc = document.createElement("span");
+        desc.className = "option-desc";
+        desc.textContent = String(option.description || "Use this prompt style");
+
+        btn.appendChild(title);
+        btn.appendChild(desc);
+        container.appendChild(btn);
+      });
+    }
+
+    function applyPromptMasterOption(index) {
+      const options = Array.isArray(promptMasterState.options) ? promptMasterState.options : [];
+      const selected = options[index];
+      const prompt = selected ? String(selected.prompt || "").trim() : "";
+      if (!prompt) return;
+      promptMasterState.recommended_prompt = prompt;
+      const recommendation = document.getElementById("promptMasterRecommendation");
+      if (recommendation) recommendation.textContent = prompt;
+      const mq = document.getElementById("masterQuestion");
+      if (mq) mq.value = prompt;
+      const reason = document.getElementById("promptMasterReason");
+      if (reason) reason.textContent = `Applied option: ${String(selected.title || `Option ${index + 1}`)}.`;
+      setPromptMasterStatus("Option Applied", "ok");
+    }
+
+    async function applyPromptMasterRecommendation() {
+      const prompt = String(promptMasterState.recommended_prompt || "").trim();
+      if (!prompt) {
+        setPromptMasterStatus("Generate First", "warn");
+        return false;
+      }
+      const mq = document.getElementById("masterQuestion");
+      if (mq) mq.value = prompt;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(prompt);
+        }
+      } catch (_) {
+        // Clipboard may be unavailable on some browsers/contexts.
+      }
+      const reply = document.getElementById("promptMasterReply");
+      if (reply) {
+        reply.textContent = "Recommended prompt applied to Cloud Master and copied to clipboard.";
+      }
+      setPromptMasterStatus("Prompt Ready", "ok");
+      return true;
+    }
+
+    async function runRecommendedPrompt() {
+      const prompt = String(promptMasterState.recommended_prompt || "").trim();
+      if (!prompt) {
+        setPromptMasterStatus("Generate First", "warn");
+        return;
+      }
+      const mq = document.getElementById("masterQuestion");
+      if (mq) mq.value = prompt;
+      const short = document.getElementById("promptMasterReply");
+      if (short) short.textContent = "Running full Master AI query — see Master AI Response below.";
+      setPromptMasterStatus("Querying...", "warn");
+      await askMasterAi(false);
+    }
+
+    async function askMasterAi(isAuto) {
+      const mq = document.getElementById("masterQuestion");
+      const out = document.getElementById("masterAiReply");
+      if (!mq || !out) return;
+      const question = (mq.value || "").trim();
+      if (!question) {
+        setPromptMasterStatus("Enter a question", "warn");
+        return;
+      }
+      if (!isAuto) out.textContent = "Querying master AI...";
+      try {
+        const result = await fetchJson(`${PANEL_API_URL}/api/master/chat`, {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        });
+
+        const alertLvl = String(result.alert_level || "normal").toUpperCase();
+        const rawType = String(result.attack_type || "").toLowerCase();
+        const attackLabel = ATTACK_LABELS[rawType] || "None Detected";
+        const detectedBy = String(result.detected_by || "-");
+        const flScoreA = typeof result.fl_score_a === "number" ? result.fl_score_a.toFixed(2) : "-";
+        const flScoreB = typeof result.fl_score_b === "number" ? result.fl_score_b.toFixed(2) : "-";
+        const revA = typeof result.node_a_revision === "number" ? result.node_a_revision : "-";
+        const revB = typeof result.node_b_revision === "number" ? result.node_b_revision : "-";
+        const knownAttack = Object.prototype.hasOwnProperty.call(ATTACK_LABELS, rawType);
+        const recommendedPrompt = String(result.recommended_prompt || "").trim();
+        const situation = (result.summary || "No current threat summary available.").trim();
+        const rawActions = Array.isArray(result.recommended_actions) ? result.recommended_actions : [];
+        const mitigation = rawActions.length
+          ? rawActions.slice(0, 3)
+              .map((a) => String(a).replace(/^[-•*\d.]+\s*/, "").trim())
+              .filter(Boolean)
+              .join(" ")
+          : "No mitigation actions available.";
+
+        let lines;
+        if (knownAttack) {
+          lines = [
+            `${alertLvl} | Attack: ${attackLabel} | Detected by: IDS Node ${detectedBy}`,
+            `FL Score — Node A (DDoS): ${flScoreA} (round ${revA})  |  Node B (GPS): ${flScoreB} (round ${revB})`,
+            ``,
+            situation,
+            ``,
+            mitigation + (mitigation.endsWith(".") ? "" : "."),
+          ];
+          if (recommendedPrompt) {
+            lines.push("", `Recommended Operator Prompt:`, recommendedPrompt);
+          }
+        } else {
+          lines = [
+            `SYSTEM STATUS: NORMAL — No active threat detected`,
+            `FL Score — Node A (DDoS): ${flScoreA} (round ${revA})  |  Node B (GPS): ${flScoreB} (round ${revB})`,
+            ``,
+            situation,
+          ];
+          if (recommendedPrompt) {
+            lines.push("", `Recommended Operator Prompt:`, recommendedPrompt);
+          }
+        }
+
+        if (isAuto && !knownAttack) return;
+
+        out.textContent = lines.join("\n");
+        if (recommendedPrompt) {
+          promptMasterState.recommended_prompt = recommendedPrompt;
+          const recommendation = document.getElementById("promptMasterRecommendation");
+          if (recommendation) recommendation.textContent = recommendedPrompt;
+        }
+        if (alertLvl === "CRITICAL" || alertLvl === "ELEVATED") {
+          if (knownAttack) setPromptMasterStatus(`${alertLvl} — ${attackLabel}`, "warn");
+        } else if (!isAuto) {
+          setPromptMasterStatus("Response Ready", "ok");
+        }
+      } catch (error) {
+        out.textContent = `Master AI error: ${error.message}`;
+        if (!isAuto) setPromptMasterStatus("Query Failed", "warn");
+      }
+    }
+
+    function toggleAutoAi() {
+      const btn = document.getElementById("autoAiToggle");
+      if (!btn) return;
+      if (autoAiInterval) {
+        clearInterval(autoAiInterval);
+        autoAiInterval = null;
+        btn.textContent = "Auto-Detect: OFF";
+        btn.classList.remove("auto-detect-on");
+        setPromptMasterStatus("Auto-Detect off", "ok");
+        return;
+      }
+      autoAiInterval = setInterval(() => {
+        generatePromptMasterRecommendation(false);
+        askMasterAi(true);
+      }, 15000);
+      btn.textContent = "Auto-Detect: ON";
+      btn.classList.add("auto-detect-on");
+      setPromptMasterStatus("Auto-Detect on (15s)", "warn");
+      generatePromptMasterRecommendation(false);
+      askMasterAi(true);
+    }
+
+    async function generatePromptMasterRecommendation(logMessage = true) {
+      const focus = String(document.getElementById("promptFocus")?.value || "auto");
+      const question = "What is happening now and what should I do next?";
+      setPromptMasterStatus("Generating...", "warn");
+      try {
+        const data = await fetchJson(`${PANEL_API_URL}/api/master/prompt-master`, {
+          method: "POST",
+          body: JSON.stringify({ question, attack_type: focus }),
+        });
+        promptMasterState = {
+          recommended_prompt: String(data.recommended_prompt || "").trim(),
+          options: Array.isArray(data.options) ? data.options : [],
+          attack_type: String(data.attack_type || ""),
+          attack_label: String(data.attack_label || "No Active Attack"),
+          mode: String(data.mode || "auto"),
+        };
+
+        lastPromptMasterAttackType = normalizeAttackType(promptMasterState.attack_type);
+
+        const recommendation = document.getElementById("promptMasterRecommendation");
+        if (recommendation) {
+          recommendation.textContent = promptMasterState.recommended_prompt || "No recommendation generated.";
+        }
+        const reason = document.getElementById("promptMasterReason");
+        if (reason) {
+          reason.textContent = String(data.recommendation_reason || "Prompt recommendation generated.");
+        }
+        if (logMessage) {
+          const reply = document.getElementById("promptMasterReply");
+          if (reply) reply.textContent = "Prompt recommendation refreshed.";
+        }
+
+        renderPromptMasterOptions(promptMasterState.options);
+
+        const modeLabel = promptMasterState.mode === "manual" ? "MANUAL" : "AUTO";
+        const statusLabel = `${promptMasterState.attack_label} · ${modeLabel}`;
+        setPromptMasterStatus(statusLabel, promptMasterState.attack_type ? "ok" : "warn");
+      } catch (error) {
+        const reason = document.getElementById("promptMasterReason");
+        if (reason) reason.textContent = `Prompt Master error: ${error.message}`;
+        setPromptMasterStatus("Unavailable", "warn");
+      }
+    }
+
+    function syncPromptMasterFromLive(data) {
+      const focus = String(document.getElementById("promptFocus")?.value || "auto");
+      if (focus !== "auto") return;
+      const liveAttackType = data && data.stats && data.stats.is_attacking
+        ? normalizeAttackType(data.stats.attack_type)
+        : "";
+      if (liveAttackType !== lastPromptMasterAttackType) {
+        lastPromptMasterAttackType = liveAttackType;
+        generatePromptMasterRecommendation(false);
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function renderCoordination(data) {
+      const feed = document.getElementById("coordFeed");
+      if (!feed) return;
+
+      const quarantine = data && data.stats && data.stats.federated_training_quarantine
+        ? data.stats.federated_training_quarantine
+        : {};
+      const quarantineRows = Object.entries(quarantine).map(([nodeId, state]) => {
+        const active = state && state.quarantined === true;
+        return {
+          ts: state && state.updated_at ? state.updated_at : "-",
+          level: active ? "warning" : "info",
+          message: `${nodeId} training ${active ? "QUARANTINED" : "ACTIVE"}${state && state.reason ? ` (${state.reason})` : ""}`,
+        };
+      });
+
+      const coordLogs = Array.isArray(data && data.attack_logs)
+        ? data.attack_logs
+            .filter((row) => String(row.message || "").includes("[COORD]"))
+            .map((row) => ({
+              ts: row.ts || "-",
+              level: String(row.level || "info").toLowerCase(),
+              message: String(row.message || ""),
+            }))
+        : [];
+
+      const merged = [...quarantineRows, ...coordLogs].slice(0, 14);
+      if (merged.length === 0) {
+        feed.innerHTML = `<div style="color:var(--text-muted);font-size:0.82rem;">Awaiting orchestration events...</div>`;
+        return;
+      }
+
+      feed.innerHTML = merged.map((row) => {
+        const lvl = row.level.includes("error") ? "coord-err" : (row.level.includes("warn") ? "coord-warn" : "coord-ok");
+        return `
+          <div class="coord-item ${lvl}">
+            <div class="coord-item-head">
+              <span>${escapeHtml(row.ts)}</span>
+              <span>${escapeHtml(row.level.toUpperCase())}</span>
+            </div>
+            <div class="coord-item-msg">${escapeHtml(row.message)}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAreaPackets() {
+      const wsBody = document.getElementById("wsBody");
+      wsBody.innerHTML = '';
+      
+      const packets = areaData[currentArea].packets || [];
+      packets.forEach(row => {
+        const div = document.createElement("div");
+        div.className = row.rowClass;
+        div.innerHTML = row.html;
+        wsBody.appendChild(div);
+      });
+
+      if (autoScroll && packets.length > 0) {
+        wsBody.scrollTop = wsBody.scrollHeight;
+      }
+    }
+
+    function clearAreaPackets() {
+      areaData[currentArea].packets = [];
+      areaData[currentArea].seenEvents.clear();
+      areaData[currentArea].packetCount = 0;
+      renderAreaPackets();
+    }
+
+    function addPacketToArea(areaId, row) {
+      const areaPackets = areaData[areaId];
+      const id = row.event_id;
+
+      if (!id || areaPackets.seenEvents.has(id)) return;
+      areaPackets.seenEvents.add(id);
+
+      areaPackets.packetCount++;
+      const timeStr = new Date().toISOString().substring(11, 23);
+      const src = row.source_device || "UNK_NODE";
+      const type = row.log_type || "BSM_TX";
+      const isSuspicious = row.suspicious === true || row.suspicious === "true";
+
+      let threatBadge = isSuspicious ? "MALICIOUS" : "OK";
+      let rowClass = isSuspicious ? "ws-row suspicious" : "ws-row";
+
+      // Fuzzy trust badge — snapshot of trust at packet-arrival time
+      const td = vehicleTrustMap[src];
+      let trustCell = `<span style="color:var(--text-muted);font-size:0.72rem;">–</span>`;
+      if (td) {
+        const pct = Math.round((td.trust_score || 0) * 100);
+        const col = trustColor(td.trust_label);
+        trustCell = `<span style="color:${col};">${pct}%</span>`;
+      }
+
+      const html = `
+        <div class="ws-cell" style="color:#64748b;">${areaPackets.packetCount}</div>
+        <div class="ws-cell c-time">${timeStr}</div>
+        <div class="ws-cell c-src">${src}</div>
+        <div class="ws-cell c-proto">${type}</div>
+        <div class="ws-cell ${isSuspicious ? 'c-threat' : 'c-info'}">${threatBadge}</div>
+        <div class="ws-cell c-trust">${trustCell}</div>
+        <div class="ws-cell c-info" title="${row.raw_excerpt || ('UUID: ' + id)}">${row.raw_excerpt || ('UUID: ' + id)}</div>
+      `;
+
+      areaPackets.packets.push({ html, rowClass });
+      
+      // Keep only last 500 packets per area
+      if (areaPackets.packets.length > 500) {
+        areaPackets.packets.shift();
+      }
+
+      if (areaId === currentArea) {
+        renderAreaPackets();
+      }
+    }
+
+    function capturePacketsForAllAreas(pipelineArr) {
+      if (!Array.isArray(pipelineArr)) return;
+
+      const chronological = [...pipelineArr].reverse();
+
+      chronological.forEach(row => {
+        const area = row.area;
+        if (area && area >= 1 && area <= 4) {
+          // Route packet to its specific geographic area
+          addPacketToArea(area, row);
+        } else {
+          // Fallback for packets without area tag — show in all areas
+          for (let i = 1; i <= 4; i++) {
+            addPacketToArea(i, row);
+          }
+        }
+      });
+    }
+
+    function renderLive(data) {
+      // Global stats and policy are shared across all areas
+      // (federated learning operates network-wide). Packet views are per-area.
+      const globalStats = Object.assign({}, data.stats || {}, {
+        detection_branches: data.detection_branches || {},
+        federated_learning: data.federated_learning || {},
+      });
+      for (let i = 1; i <= 4; i++) {
+        areaData[i].stats = globalStats;
+        areaData[i].policy = data.global_policy || {};
+      }
+      
+      if (data.pipeline) {
+        capturePacketsForAllAreas(data.pipeline);
+      }
+      
+      const now = new Date();
+      document.getElementById("lastUpdate").textContent = now.toLocaleTimeString();
+
+      renderAreaStats();
+      renderAreaPolicy();
+      renderAreaPackets();
+      syncPromptMasterFromLive(data);
+      renderCoordination(data);
+
+      if (data.fuzzy_trust) {
+        renderFuzzyTrust(data.fuzzy_trust);
+      }
+    }
+
+    async function toggleSim() {
+      const btn = document.getElementById("btnSim");
+      try {
+        if (!simStarted) {
+          const res = await fetch(`${SIMULATOR_URL}/api/start`, { method: "POST" });
+          if (res.ok) {
+            simStarted = true;
+            btn.textContent = "STOP SIMULATION";
+            btn.style.color = "var(--danger)";
+            btn.style.borderColor = "var(--danger)";
+          }
+        } else {
+          const res = await fetch(`${SIMULATOR_URL}/api/stop`, { method: "POST" });
+          if (res.ok) {
+            simStarted = false;
+            btn.textContent = "START SIM";
+            btn.style.color = "var(--success)";
+            btn.style.borderColor = "var(--success)";
+          }
+        }
+      } catch (e) {
+        console.error("Simulation toggle failed:", e);
+        alert(`Failed to reach Simulation Engine at ${SIMULATOR_URL}.`);
+      }
+    }
+
+    async function resetSystem() {
+      if(!confirm("Reset ALL nodes and wipe simulation data?")) return;
+      try {
+        await fetch(`${ORCH_URL}/api/reset`, { method: "POST" });
+        simStarted = false;
+        const btn = document.getElementById("btnSim");
+        btn.textContent = "START SIM";
+        btn.style.color = "var(--success)";
+        btn.style.borderColor = "var(--success)";
+        
+        // Clear all area data
+        for (let i = 1; i <= 4; i++) {
+          areaData[i].packets = [];
+          areaData[i].seenEvents.clear();
+          areaData[i].packetCount = 0;
+          areaData[i].stats = {};
+          areaData[i].policy = {};
+        }
+        renderAreaPackets();
+      } catch (e) {
+        console.error(e);
+        alert("Failed to reset system.");
+      }
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, { headers: { "Content-Type": "application/json" }, ...options });
+      const data = await res.json();
+      if (!res.ok) throw new Error(typeof data === "object" ? JSON.stringify(data) : String(data));
+      return data;
+    }
+
+    function setSocketStatus(state, type) {
+      const el = document.getElementById("socketStatus");
+      const dotHtml = `<div class="status-dot"></div>`;
+      el.innerHTML = `${dotHtml} ${state}`;
+      el.className = `status-badge status-${type}`;
+    }
+
+    function toWsUrl(baseHttpUrl) {
+      const parsed = new URL(baseHttpUrl);
+      parsed.protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+      parsed.pathname = "/ws/live";
+      return parsed.toString();
+    }
+
+    async function pullInitialSnapshot() {
+      const overview = await fetchJson(`${ORCH_URL}/api/live/overview`);
+      renderLive(overview);
+    }
+
+    function connectSocket() {
+      if (socketRef && (socketRef.readyState === WebSocket.OPEN || socketRef.readyState === WebSocket.CONNECTING)) return;
+      
+      const wsUrl = toWsUrl(ORCH_URL);
+      setSocketStatus("WS: CONNECTING", "warn");
+      
+      socketRef = new WebSocket(wsUrl);
+      socketRef.onopen = () => setSocketStatus("WS: CONNECTED", "ok");
+      
+      socketRef.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg && (msg.event === "snapshot" || msg.event === "update") && msg.data) {
+            renderLive(msg.data);
+          }
+        } catch (err) {
+          console.error("ws parse error", err);
+        }
+      };
+      
+      socketRef.onclose = () => {
+        setSocketStatus("WS: DISCONNECTED", "err");
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(connectSocket, 2000);
+      };
+      socketRef.onerror = () => setSocketStatus("WS: ERROR", "err");
+    }
+
+    loadPanelConfig().then(() => {
+      pullInitialSnapshot().then(connectSocket).catch((err) => {
+        console.error("initial load failed", err);
+        connectSocket();
+      });
+    });
+
+    document.getElementById("promptFocus")?.addEventListener("change", () => {
+      generatePromptMasterRecommendation(false);
+    });
+    document.getElementById("masterQuestion")?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        askMasterAi(false);
+      }
+    });
+    generatePromptMasterRecommendation(false);
+
+    // ── Fuzzy Trust Engine rendering ────────────────────────────────────
+
+    function trustColor(label) {
+      const map = {
+        "HIGHLY_TRUSTED": "#00FF9D",
+        "TRUSTED":        "#00F0FF",
+        "UNCERTAIN":      "#FFE600",
+        "LOW":            "#FF9500",
+        "UNTRUSTED":      "#FF0055",
+      };
+      return map[label] || "#8A94A6";
+    }
+
+    function trustLabelClass(label) {
+      const map = {
+        "HIGHLY_TRUSTED": "tl-ht",
+        "TRUSTED":        "tl-t",
+        "UNCERTAIN":      "tl-u",
+        "LOW":            "tl-lo",
+        "UNTRUSTED":      "tl-unt",
+      };
+      return map[label] || "tl-u";
+    }
+
+    function renderFuzzyTrust(fuzzyData) {
+      if (!fuzzyData) return;
+
+      // Keep vehicleTrustMap current for packet-row badges
+      const vehicles = Array.isArray(fuzzyData.vehicles) ? fuzzyData.vehicles.slice(0, 20) : [];
+      vehicles.forEach(v => { vehicleTrustMap[v.entity_id] = v; });
+
+      // ── Vehicles ──────────────────────────────────────────────────────
+      const vBody = document.getElementById("fuzzyVehicleBody");
+      if (vehicles.length === 0) {
+        vBody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);font-size:0.8rem;padding:10px 6px;">No vehicles tracked yet.</td></tr>`;
+      } else {
+        vBody.innerHTML = vehicles.slice(0, 12).map(v => {
+          const pct     = Math.round((v.trust_score || 0) * 100);
+          const color   = trustColor(v.trust_label);
+          const cls     = trustLabelClass(v.trust_label);
+          const anom    = typeof v.anomaly_ema === "number" ? (v.anomaly_ema * 100).toFixed(0) + "%" : "-";
+          const isSel   = v.entity_id === selectedVehicleId;
+          // Trust ceiling — shown only when it has been permanently lowered by past attacks
+          const ceiling = typeof v.trust_ceiling === "number" ? v.trust_ceiling : 1.0;
+          const ceilPct = Math.round(ceiling * 100);
+          const stained = ceiling < 0.98;
+          const ceilBadge = stained
+            ? `<span title="Trust permanently stained — max possible: ${ceilPct}%"
+                    style="font-size:0.58rem;background:rgba(255,0,85,0.18);color:#FF0055;
+                           border:1px solid rgba(255,0,85,0.5);border-radius:3px;
+                           padding:1px 4px;margin-left:4px;letter-spacing:0.02em;">
+                MAX ${ceilPct}%
+               </span>`
+            : '';
+          return `
+            <tr class="${isSel ? 'fuzzy-selected-row' : ''}"
+                onclick="selectVehicle('${v.entity_id}')"
+                style="cursor:pointer;" title="Inspect fuzzy inference">
+              <td style="font-family:'JetBrains Mono',monospace;color:#a78bfa;font-size:0.80rem;">${v.entity_id}</td>
+              <td><span class="trust-label-badge ${cls}">${v.trust_label.replace(/_/g," ")}</span>${ceilBadge}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div class="trust-bar-wrap" style="position:relative;">
+                    <div class="trust-bar-fill" style="width:${pct}%;background:${color};"></div>
+                    ${stained ? `<div title="Trust ceiling" style="position:absolute;top:0;bottom:0;left:${ceilPct}%;width:2px;background:rgba(255,0,85,0.85);"></div>` : ''}
+                  </div>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:${color};">${pct}%</span>
+                </div>
+              </td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);">${anom}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--danger);">${v.total_suspicious ?? 0}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Auto-select latest vehicle and refresh detail panel
+      if (!selectedVehicleId && vehicles.length > 0) selectedVehicleId = vehicles[0].entity_id;
+      if (selectedVehicleId && vehicleTrustMap[selectedVehicleId]) {
+        renderFuzzyDetail(vehicleTrustMap[selectedVehicleId]);
+      }
+
+      const nBody = document.getElementById("fuzzyNodeBody");
+      if (nBody) {
+        // Backward-compatible rendering for layouts that still include node reliability.
+        const orchNodes = Array.isArray(fuzzyData.nodes) ? fuzzyData.nodes : [];
+        const allNodes = [...orchNodes];
+        fogServerTrustData.forEach(fn => {
+          if (!allNodes.find(n => n.entity_id === fn.entity_id)) allNodes.push(fn);
+        });
+
+        if (allNodes.length === 0) {
+          nBody.innerHTML = `<div style="color:var(--text-muted);font-size:0.8rem;padding:10px 0;">Awaiting node data…</div>`;
+        } else {
+          nBody.innerHTML = allNodes.map(n => {
+            const pct = Math.round((n.trust_score || 0) * 100);
+            const expPct = Math.round((n.attack_exposure || 0) * 100);
+            const color = trustColor(n.trust_label);
+            const cls = trustLabelClass(n.trust_label);
+            const typeIcon = n.entity_type === "fog_node" ? "☁" : "⚙";
+            const isOffline = n.temporarily_offline === true;
+            const atkBadge = isOffline
+              ? `<span style="font-size:0.60rem;background:rgba(255,0,85,0.3);color:#FF0055;border:1px solid rgba(255,0,85,0.6);border-radius:3px;padding:1px 6px;margin-left:5px;font-weight:700;animation:blink 0.8s infinite;">⛔ TEMPORARILY OFFLINE</span>`
+              : expPct > 20
+                ? `<span style="font-size:0.60rem;background:rgba(255,0,85,0.2);color:#FF0055;border:1px solid rgba(255,0,85,0.4);border-radius:3px;padding:1px 5px;margin-left:5px;animation:blink 1.2s infinite;">UNDER ATTACK</span>`
+                : '';
+            return `
+              <div class="node-trust-row">
+                <div class="node-trust-name">${typeIcon} ${n.entity_id}${atkBadge}</div>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <div class="trust-bar-wrap" style="width:90px;">
+                      <div class="trust-bar-fill" style="width:${pct}%;background:${color};"></div>
+                    </div>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:${color};">${pct}%</span>
+                    <span class="trust-label-badge ${cls}" style="margin-left:4px;">${n.trust_label.replace(/_/g," ")}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:0.68rem;color:var(--text-muted);min-width:64px;">Attack Exp:</span>
+                    <div class="exposure-bar-wrap">
+                      <div class="exposure-bar-fill" style="width:${expPct}%;"></div>
+                    </div>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:${expPct > 40 ? '#FF9500' : 'var(--text-muted)'};">${expPct}%</span>
+                  </div>
+                </div>
+                <div class="node-trust-meta">
+                  Seen: ${n.total_seen ?? 0}<br>
+                  Susp: <span style="color:var(--danger)">${n.total_suspicious ?? 0}</span>
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
+      }
+    }
+
+    // ── Vehicle selection & fuzzy inference detail ───────────────────────
+
+    function selectVehicle(vehicleId) {
+      selectedVehicleId = vehicleId;
+      // Highlight selected row
+      document.querySelectorAll('#fuzzyVehicleBody tr').forEach(tr => {
+        const firstCell = tr.querySelector('td');
+        if (firstCell) {
+          tr.classList.toggle('fuzzy-selected-row', firstCell.textContent.trim() === vehicleId);
+        }
+      });
+      if (vehicleTrustMap[vehicleId]) renderFuzzyDetail(vehicleTrustMap[vehicleId]);
+    }
+
+    function renderFuzzyDetail(v) {
+      const panel = document.getElementById("fuzzyDetailPanel");
+      if (!panel) return;
+
+      const conf    = typeof v.confidence_ema  === "number" ? v.confidence_ema  : 0.5;
+      const anom    = typeof v.anomaly_ema     === "number" ? v.anomaly_ema     : 0.1;
+      const succ    = typeof v.success_rate    === "number" ? v.success_rate    : 1.0;
+      const exp     = typeof v.attack_exposure === "number" ? v.attack_exposure : 0.0;
+      const ceiling = typeof v.trust_ceiling   === "number" ? v.trust_ceiling   : 1.0;
+      const pct     = n => Math.round(n * 100);
+      const stained = ceiling < 0.98;
+
+      function inputBar(val, color) {
+        return `<div style="display:flex;align-items:center;gap:5px;">
+          <div class="fuzzy-inp-track"><div class="fuzzy-inp-fill" style="width:${pct(val)}%;background:${color};"></div></div>
+          <span class="fuzzy-inp-val">${pct(val)}%</span>
+        </div>`;
+      }
+
+      const anomColor  = anom > 0.6 ? '#FF0055' : anom > 0.35 ? '#FF9500' : '#00FF9D';
+      const expColor   = exp  > 0.4 ? '#FF0055' : exp  > 0.2  ? '#FF9500' : '#FFE600';
+
+      const rules  = v.firing_strengths || {};
+      const sorted = Object.entries(rules).sort(([, a], [, b]) => b - a).slice(0, 7);
+
+      function ruleColor(name) {
+        if (name.includes('Untrusted')) return '#FF0055';
+        if (name.includes('Low'))       return '#FF9500';
+        if (name.includes('Uncertain')) return '#FFE600';
+        if (name.includes('HighlyTrusted') || (name.includes('HiConf') && name.includes('LoAnom'))) return '#00FF9D';
+        return '#00F0FF';
+      }
+
+      panel.innerHTML = `
+        <div class="fuzzy-detail-title">
+          Fuzzy Inference Detail &nbsp;—&nbsp;
+          <span style="color:${trustColor(v.trust_label)};font-family:'JetBrains Mono',monospace;">${v.entity_id}</span>
+          <span class="trust-label-badge ${trustLabelClass(v.trust_label)}">${v.trust_label.replace(/_/g,' ')}</span>
+          ${stained ? `<span title="This entity has been flagged as malicious. Its trust is permanently capped at ${pct(ceiling)}% and will never recover." style="font-size:0.58rem;background:rgba(255,0,85,0.18);color:#FF0055;border:1px solid rgba(255,0,85,0.5);border-radius:3px;padding:1px 5px;margin-left:4px;">🔴 STAINED · MAX ${pct(ceiling)}%</span>` : ''}
+          <span style="margin-left:auto;font-size:0.65rem;color:var(--text-muted);">Score: ${pct(v.trust_score ?? 0)}%</span>
+        </div>
+
+        <div class="fuzzy-inputs-row">
+          <div class="fuzzy-inp-group">
+            <div class="fuzzy-inp-label">Confidence EMA</div>
+            ${inputBar(conf, '#00F0FF')}
+          </div>
+          <div class="fuzzy-inp-group">
+            <div class="fuzzy-inp-label">Anomaly EMA</div>
+            ${inputBar(anom, anomColor)}
+          </div>
+          <div class="fuzzy-inp-group">
+            <div class="fuzzy-inp-label">Success Rate</div>
+            ${inputBar(succ, '#00FF9D')}
+          </div>
+          <div class="fuzzy-inp-group">
+            <div class="fuzzy-inp-label">Attack Exposure</div>
+            ${inputBar(exp, expColor)}
+          </div>
+          ${stained ? `
+          <div class="fuzzy-inp-group">
+            <div class="fuzzy-inp-label" style="color:#FF0055;">Trust Ceiling</div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div class="fuzzy-inp-track" style="position:relative;">
+                <div class="fuzzy-inp-fill" style="width:${pct(ceiling)}%;background:rgba(255,0,85,0.4);"></div>
+                <div style="position:absolute;top:0;bottom:0;left:${pct(ceiling)}%;width:2px;background:#FF0055;"></div>
+              </div>
+              <span class="fuzzy-inp-val" style="color:#FF0055;">${pct(ceiling)}% cap</span>
+            </div>
+          </div>` : ''}
+        </div>
+
+        ${sorted.length > 0 ? `
+        <div class="fuzzy-detail-title" style="margin-top:2px;">Active Fuzzy Rules</div>
+        <div class="fuzzy-rules-grid">
+          ${sorted.map(([name, strength]) => {
+            const p = pct(strength);
+            const c = ruleColor(name);
+            const label = name.replace(/^(R\d+):/, '$1 ');
+            return `<div class="fuzzy-rule-row">
+              <div class="fuzzy-rule-name" title="${name}">${label}</div>
+              <div class="fuzzy-rule-track"><div class="fuzzy-rule-fill" style="width:${p}%;background:${c};"></div></div>
+              <div class="fuzzy-rule-val" style="color:${c};">${p}%</div>
+            </div>`;
+          }).join('')}
+        </div>` : `<div style="color:var(--text-muted);font-size:0.72rem;padding:6px 0;">No rules firing — awaiting first packet.</div>`}
+      `;
+    }
+
+    // ── Fog server trust polling (port 8080, direct from panel) ─────────
+
+    async function pollFogServer() {
+      const FOG_URL = `${PANEL_PROTOCOL}//${PANEL_HOST}:8080`;
+      try {
+        const res = await fetch(`${FOG_URL}/fuzzy/trust`, {
+          signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined,
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Merge fog-server vehicles into vehicleTrustMap
+        if (Array.isArray(data.vehicles)) {
+          data.vehicles.forEach(v => { vehicleTrustMap[v.entity_id] = v; });
+        }
+
+        // Annotate each fog node with the top-level temporarily_offline flag
+        const fogNodes = Array.isArray(data.fog_node) ? data.fog_node : [];
+        if (data.temporarily_offline !== undefined) {
+          fogNodes.forEach(n => { n.temporarily_offline = data.temporarily_offline; });
+        }
+        fogServerTrustData = fogNodes;
+
+        // Force a re-render now so the offline badge appears immediately
+        if (fogServerTrustData.length > 0) {
+          renderFuzzyTrust({ vehicles: Object.values(vehicleTrustMap), nodes: [] });
+        }
+      } catch (_) {
+        // Fog server not running — silently skip
+      }
+    }
+
+    // Poll fog server every 4 s; also fire once at startup (after config loaded)
+    loadPanelConfig().then(() => {
+      pollFogServer();
+      setInterval(pollFogServer, 4000);
+    });
+
+    function renderSpecialistNodeButton(node, enabled) {
+      const btn = document.getElementById(node === "A" ? "btnNodeA" : "btnNodeB");
+      if (!btn) return;
+      btn.textContent = `NODE ${node}: ${enabled ? "ON" : "OFF"}`;
+      if (enabled) {
+        btn.style.background = "rgba(0,240,255,0.1)";
+        btn.style.color = "var(--accent)";
+        btn.style.borderColor = "var(--accent)";
+      } else {
+        btn.style.background = "rgba(255,0,85,0.15)";
+        btn.style.color = "var(--danger)";
+        btn.style.borderColor = "var(--danger)";
+      }
+    }
+
+    async function refreshSpecialistNodeButtons() {
+      try {
+        const state = await fetchJson(`${ORCH_URL}/api/specialist-nodes/state`);
+        renderSpecialistNodeButton("A", !!(state && state.ids_node_a && state.ids_node_a.enabled));
+        renderSpecialistNodeButton("B", !!(state && state.ids_node_b && state.ids_node_b.enabled));
+      } catch (_) {
+        // Orchestrator unreachable — leave buttons as-is
+      }
+    }
+
+    async function toggleSpecialistNode(node) {
+      const btnId = node === "A" ? "btnNodeA" : "btnNodeB";
+      const btn = document.getElementById(btnId);
+      const currentlyOn = btn && btn.textContent.includes("ON");
+      const nextEnabled = !currentlyOn;
+      try {
+        const resp = await fetchJson(`${ORCH_URL}/api/specialist-nodes/toggle`, {
+          method: "PUT",
+          body: JSON.stringify({ node: node, enabled: nextEnabled }),
+        });
+        renderSpecialistNodeButton("A", !!(resp && resp.ids_node_a && resp.ids_node_a.enabled));
+        renderSpecialistNodeButton("B", !!(resp && resp.ids_node_b && resp.ids_node_b.enabled));
+      } catch (err) {
+        console.error("specialist node toggle failed", err);
+      }
+    }
+
+    loadPanelConfig().then(() => {
+      refreshSpecialistNodeButtons();
+      setInterval(refreshSpecialistNodeButtons, 5000);
+    });
+
+    // Poll federated policy directly from the global model every 5 s so the
+    // panel stays current without needing a new attack to trigger a snapshot.
+    async function pollFederatedPolicy() {
+      try {
+        const policy = await fetchJson(`${GLOBAL_URL}/v1/federated/policy`);
+        if (policy && typeof policy === "object") {
+          for (let i = 1; i <= 4; i++) {
+            areaData[i].policy = policy;
+          }
+          renderAreaPolicy();
+        }
+      } catch (_) {
+        // Global model unreachable — keep showing last known policy
+      }
+    }
+    loadPanelConfig().then(() => {
+      pollFederatedPolicy();
+      setInterval(pollFederatedPolicy, 5000);
+    });
+
+  </script>
+</body>
+</html>

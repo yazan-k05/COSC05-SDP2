@@ -1,0 +1,156 @@
+# Runs on local machine (VPN IP: 10.8.0.2)
+# Services: filter-node, ids-node-a, ids-node-b, panel-app, vehicle-client, simulator
+# Cloud VM (VPN IP: 10.8.0.1) runs: global-model (8104), brain-node (8103),
+#                                     orchestrator (8100), sensor-node (8101)
+
+services:
+  filter-node:
+    build:
+      context: ./tiered_xai_ids
+      dockerfile: Dockerfile
+    command: uvicorn run_filter:app --host 0.0.0.0 --port 8102
+    env_file:
+      - ./tiered_xai_ids/.env
+    environment:
+      FILTER_BRAIN_NODE_URL: http://10.8.0.1:8103
+      FILTER_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      FILTER_GLOBAL_MODEL_URL: http://10.8.0.1:8104
+      REQUEST_TIMEOUT_SECONDS: "20"
+      MAX_MODEL_RETRIES: "1"
+    ports:
+      - "8102:8102"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8102/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 4
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  ids-node-a:
+    build:
+      context: ./tiered_xai_ids
+      dockerfile: Dockerfile
+    command: uvicorn run_ids_node:app --host 0.0.0.0 --port 8001
+    env_file:
+      - ./tiered_xai_ids/.env
+    environment:
+      IDS_SERVICE_NAME: ids-node-a
+      IDS_BIND_PORT: "8001"
+      IDS_SPECIALTY: ddos
+      IDS_CROSS_LEARNING_START_ROUND: "3"
+      IDS_GLOBAL_MODEL_URL: http://10.8.0.1:8104
+      IDS_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      IDS_MODEL_NAME: phi3.5
+      REQUEST_TIMEOUT_SECONDS: "20"
+      MAX_MODEL_RETRIES: "1"
+    ports:
+      - "8001:8001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 4
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  ids-node-b:
+    build:
+      context: ./tiered_xai_ids
+      dockerfile: Dockerfile
+    command: uvicorn run_ids_node:app --host 0.0.0.0 --port 8002
+    env_file:
+      - ./tiered_xai_ids/.env
+    environment:
+      IDS_SERVICE_NAME: ids-node-b
+      IDS_BIND_PORT: "8002"
+      IDS_SPECIALTY: gps_spoof
+      IDS_CROSS_LEARNING_START_ROUND: "3"
+      IDS_GLOBAL_MODEL_URL: http://10.8.0.1:8104
+      IDS_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      IDS_MODEL_NAME: phi3.5
+      REQUEST_TIMEOUT_SECONDS: "20"
+      MAX_MODEL_RETRIES: "1"
+    ports:
+      - "8002:8002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 4
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  panel-app:
+    build:
+      context: ./tiered_xai_ids
+      dockerfile: Dockerfile
+    command: uvicorn run_panel:app --host 0.0.0.0 --port 8200
+    env_file:
+      - ./tiered_xai_ids/.env
+    environment:
+      PANEL_ORCHESTRATOR_URL: http://10.8.0.1:8100
+      PANEL_GLOBAL_MODEL_URL: http://10.8.0.1:8104
+      PANEL_ATTACK_CLIENT_URL: http://10.8.0.1:7700
+    ports:
+      - "8200:8200"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8200/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 4
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  vehicle-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.vehicle
+    environment:
+      FOG_SERVER_URL: http://10.8.0.1:8100
+      VEHICLE_ID: ${VEHICLE_ID:-V001}
+      VEHICLE_SPEED: ${VEHICLE_SPEED:-60}
+      VEHICLE_LOCATION_LAT: ${VEHICLE_LOCATION_LAT:-25.2048}
+      VEHICLE_LOCATION_LON: ${VEHICLE_LOCATION_LON:-55.2708}
+      VEHICLE_HEADING: ${VEHICLE_HEADING:-90}
+      VEHICLE_CLIENT_PORT: 5000
+      FLASK_ENV: ${FLASK_ENV:-development}
+      PYTHONUNBUFFERED: ${PYTHONUNBUFFERED:-1}
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://127.0.0.1:5000/', timeout=5)"]
+      interval: 20s
+      timeout: 6s
+      retries: 4
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    environment:
+      ORCHESTRATOR_URL: http://10.8.0.1:8100
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    driver: bridge
